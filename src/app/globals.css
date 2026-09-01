@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  The Modernist system from the Manak Mitra handoff. Hierarchy is carried by
+  2px structural rules, uppercase tracked section labels, and a flush-left
+  grid — never by rounding, shadows, or centred text.
+*/
+
+@layer base {
+  :root {
+    /* Specified light-only; declaring it stops browsers from inverting form controls. */
+    color-scheme: light;
+  }
+
+  html {
+    /* 16px root, so a reader who has enlarged their default type still gets it. */
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    /*
+      The header is sticky, so anything scrolled to — the skip-link target, a
+      focused control, an in-page anchor — would otherwise come to rest
+      underneath it. Reserve its height plus a little breathing room.
+    */
+    scroll-padding-top: 8.5rem;
+  }
+
+  body {
+    @apply bg-surface text-ink antialiased;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  /*
+    Display type: heavy, tight, flush left. The handoff's 82px cover heading is
+    a jury screen this app has no equivalent of, so the scale starts one step
+    down and stays on its ratio.
+  */
+  h1 {
+    @apply text-[2.125rem] font-extrabold leading-[1.04] tracking-display sm:text-[2.75rem];
+  }
+
+  h2 {
+    @apply text-[1.625rem] font-extrabold leading-[1.1] tracking-tight sm:text-[2rem];
+  }
+
+  h3 {
+    @apply text-[1.15rem] font-bold leading-[1.25] tracking-tight;
+  }
+
+  /* Links are underlined by a hairline in the accent tint, not by decoration. */
+  a {
+    @apply text-primary-700;
+  }
+
+  /* The handoff pins the focus ring; never fall back to the browser default. */
+  :focus-visible {
+    outline: 2px solid theme('colors.primary.600');
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: theme('colors.primary.200');
+  }
+
+  [dir='rtl'] {
+    text-align: right;
+  }
+
+  /*
+    Typography is part of the language switch, not an afterthought. Latin
+    tracking breaks Indic conjuncts and tight leading clips matras and
+    above-base marks, so every non-Latin locale relaxes both.
+  */
+  :is(
+    [lang='hi'],
+    [lang='bn'],
+    [lang='mr'],
+    [lang='te'],
+    [lang='ta'],
+    [lang='gu'],
+    [lang='kn'],
+    [lang='ml'],
+    [lang='or'],
+    [lang='pa'],
+    [lang='as'],
+    [lang='ur']
+  ) {
+    letter-spacing: normal;
+  }
+
+  :is([lang='hi'], [lang='bn'], [lang='mr'], [lang='te'], [lang='ta'], [lang='gu']) :is(h1, h2, h3),
+  :is([lang='kn'], [lang='ml'], [lang='or'], [lang='pa'], [lang='as'], [lang='ur'])
+    :is(h1, h2, h3) {
+    line-height: 1.24;
+    letter-spacing: normal;
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply absolute left-0 top-0 z-50 -translate-y-20 border-2 border-primary-600 bg-primary-600 px-4 py-3 text-sm font-semibold uppercase tracking-button text-white transition-transform focus:translate-y-0;
+  }
+
+  /*
+    The system's section label: 11px, weight 800, wide tracking, uppercase,
+    sitting on a 2px rule. This is what separates regions instead of a card.
+  */
+  .section-label {
+    @apply flex items-center gap-3 border-b-2 border-line-strong pb-2.5 text-label font-extrabold uppercase;
+  }
+
+  /* A panel: 2px edge, tinted header bar, flush body. No radius, no shadow. */
+  .panel {
+    @apply border-2 border-line-strong bg-surface;
+  }
+
+  .panel-header {
+    @apply flex items-center gap-3 border-b-2 border-line-strong bg-surface-sunken px-4 py-2.5 text-label font-extrabold uppercase;
+  }
+
+  .panel-body {
+    @apply p-[18px];
+  }
+
+  /* Quoted or derived prose, marked by the accent bar the handoff specifies. */
+  .accent-quote {
+    @apply border-l-[3px] border-primary-600 pl-3.5;
+  }
+
+  .prose-civic p {
+    @apply max-w-[62ch] leading-[1.65] text-ink-muted;
+  }
+
+  /* Metadata: label above value, as on the primary-match card. */
+  .meta-label {
+    @apply text-[0.625rem] font-extrabold uppercase tracking-[0.14em] text-ink-faint;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
