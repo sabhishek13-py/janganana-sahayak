@@ -19,6 +19,26 @@ describe('environment validation', () => {
     }).toThrow();
   });
 
+  it('allows the client identifiers that are public by design', () => {
+    // Both are meant to ship in the browser bundle; flagging them refused to
+    // boot a correctly configured deployment.
+    expect(() => {
+      assertNoPublicSecrets({
+        NEXT_PUBLIC_FIREBASE_API_KEY: 'AIzaPublicClientIdentifier',
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: 'AIzaPublicBrowserKey',
+      });
+    }).not.toThrow();
+  });
+
+  it('still refuses a genuinely secret key given a public name', () => {
+    expect(() => {
+      assertNoPublicSecrets({ NEXT_PUBLIC_GROQ_API_KEY: 'gsk_x' });
+    }).toThrow(/secret-shaped/);
+    expect(() => {
+      assertNoPublicSecrets({ NEXT_PUBLIC_OPENAI_API_KEY: 'sk-x' });
+    }).toThrow(/secret-shaped/);
+  });
+
   it('allows genuinely public configuration', () => {
     expect(() => {
       assertNoPublicSecrets({ NEXT_PUBLIC_GA_MEASUREMENT_ID: 'G-ABC123', GROQ_API_KEY: 'k' });

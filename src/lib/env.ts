@@ -36,6 +36,20 @@ const FORBIDDEN_PUBLIC_KEYS = [
   'NEXT_PUBLIC_SERVICE_ACCOUNT',
 ] as const;
 
+/**
+ * Names that are public *by design*, and so must not trip the heuristic below.
+ *
+ * A Firebase web API key and a browser Maps key are client identifiers, not
+ * credentials: they are meant to ship in the bundle, and are protected by HTTP
+ * referrer restrictions and App Check rather than by being kept secret. The
+ * pattern below matches `API_KEY`, which would otherwise refuse to boot a
+ * correctly configured deployment.
+ */
+const PUBLIC_BY_DESIGN: ReadonlySet<string> = new Set([
+  'NEXT_PUBLIC_FIREBASE_API_KEY',
+  'NEXT_PUBLIC_GOOGLE_MAPS_API_KEY',
+]);
+
 const SECRET_SHAPED = /(SECRET|PRIVATE_KEY|SERVICE_ACCOUNT|API_KEY)/;
 
 /** Any environment-shaped record, so callers can pass a partial map in tests. */
@@ -46,6 +60,7 @@ export function assertNoPublicSecrets(source: EnvSource = process.env): void {
   const leaked = Object.keys(source).filter(
     (key) =>
       key.startsWith('NEXT_PUBLIC_') &&
+      !PUBLIC_BY_DESIGN.has(key) &&
       (FORBIDDEN_PUBLIC_KEYS.some((forbidden) => forbidden === key) || SECRET_SHAPED.test(key)),
   );
   if (leaked.length > 0) {
