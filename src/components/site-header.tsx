@@ -45,7 +45,7 @@ export function SiteHeader() {
       </div>
 
       <nav aria-label={t('menu')} className="border-t-2 border-line-strong">
-        <ul className="mx-auto flex max-w-[1360px] flex-wrap px-4 sm:px-7">
+        <ul className="mx-auto flex max-w-[1360px] flex-wrap justify-center px-4 sm:px-7">
           {ROUTES.map((route) => (
             <li key={route.href} className="border-r-2 border-line-strong first:border-l-2">
               <Link
