@@ -59,6 +59,23 @@ describe('environment validation', () => {
     expect(parsed.APP_CHECK_ENFORCED).toBe(false);
   });
 
+  it('treats a variable left blank as simply unset', () => {
+    // A hosting dashboard hands you '' for a row added but not filled in. That
+    // must mean "feature off", not "refuse to boot".
+    expect(() =>
+      readServerEnv({ FIREBASE_PROJECT_NUMBER: '', GROQ_API_KEY: '', APP_CHECK_ENFORCED: '' }),
+    ).not.toThrow();
+    expect(readServerEnv({ FIREBASE_PROJECT_NUMBER: '' }).FIREBASE_PROJECT_NUMBER).toBeUndefined();
+    expect(readServerEnv({ GROQ_API_KEY: '   ' }).GROQ_API_KEY).toBeUndefined();
+  });
+
+  it('still rejects a project number that is not all digits', () => {
+    // The commonest mistake is pasting the project id instead of the number.
+    expect(() => readServerEnv({ FIREBASE_PROJECT_NUMBER: 'my-project-id' })).toThrow(
+      /all-digits project number/,
+    );
+  });
+
   it('coerces and bounds the rate-limit settings', () => {
     expect(readServerEnv({ RATE_LIMIT_CAPACITY: '25' }).RATE_LIMIT_CAPACITY).toBe(25);
     expect(() => readServerEnv({ RATE_LIMIT_CAPACITY: '0' })).toThrow();

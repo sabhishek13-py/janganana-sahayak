@@ -19,8 +19,14 @@ const serverEnvSchema = z.object({
    * constrains its reply with a JSON Schema. See `docs` in the README.
    */
   GROQ_MODEL: z.string().min(1).default('openai/gpt-oss-20b'),
-  /** Firebase project number, used to verify App Check tokens. */
-  FIREBASE_PROJECT_NUMBER: z.string().regex(/^\d+$/).optional(),
+  /**
+   * Firebase project number, used to verify App Check tokens. This is the
+   * all-digits number from the Firebase console, not the project *id*.
+   */
+  FIREBASE_PROJECT_NUMBER: z
+    .string()
+    .regex(/^\d+$/, 'FIREBASE_PROJECT_NUMBER must be the all-digits project number, not the id')
+    .optional(),
   APP_CHECK_ENFORCED: z
     .enum(['true', 'false'])
     .default('false')
@@ -70,9 +76,25 @@ export function assertNoPublicSecrets(source: EnvSource = process.env): void {
   }
 }
 
+/**
+ * Treats a variable set to an empty string as absent.
+ *
+ * Every optional value here means "this feature is off when unset", but Zod's
+ * `.optional()` admits `undefined` and not `''`. Hosting dashboards hand you an
+ * empty string whenever a variable is added and left blank, so without this a
+ * deployer who creates the row but has nothing to put in it yet gets a refusal
+ * to boot rather than the feature simply staying off. `public-env.ts` has always
+ * done this; the server schema should agree.
+ */
+function withoutBlanks(source: EnvSource): EnvSource {
+  return Object.fromEntries(
+    Object.entries(source).filter(([, value]) => value === undefined || value.trim() !== ''),
+  );
+}
+
 function readServerEnv(source: EnvSource = process.env): z.infer<typeof serverEnvSchema> {
   assertNoPublicSecrets(source);
-  const parsed = serverEnvSchema.safeParse(source);
+  const parsed = serverEnvSchema.safeParse(withoutBlanks(source));
   if (!parsed.success) {
     const detail = parsed.error.issues
       .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
