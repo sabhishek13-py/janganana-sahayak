@@ -45,12 +45,15 @@ export function SiteHeader() {
       </div>
 
       <nav aria-label={t('menu')} className="border-t-2 border-line-strong">
-        <ul className="mx-auto flex max-w-[1360px] flex-wrap justify-center px-4 sm:px-7">
+        <ul className="mx-auto flex max-w-[1360px] flex-wrap px-4 sm:px-7">
           {ROUTES.map((route) => (
-            <li key={route.href} className="border-r-2 border-line-strong first:border-l-2">
+            <li
+              key={route.href}
+              className="flex-1 border-r-2 border-line-strong first:border-l-2"
+            >
               <Link
                 href={route.href}
-                className="inline-flex min-h-touch items-center px-4 text-[0.71875rem] font-extrabold uppercase tracking-[0.14em] text-ink-subtle no-underline transition-colors hover:bg-line-strong hover:text-white"
+                className="flex min-h-touch items-center justify-center px-4 text-center text-[0.71875rem] font-extrabold uppercase tracking-[0.14em] text-ink-subtle no-underline transition-colors hover:bg-line-strong hover:text-white"
               >
                 {t(route.key)}
               </Link>
